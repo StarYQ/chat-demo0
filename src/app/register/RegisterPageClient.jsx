@@ -27,18 +27,6 @@ export default function RegisterPageClient() {
       });
       if (error) throw error;
 
-      // Insert new user into the custom Users table
-      const response = await fetch('/api/create-user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          id: data.user.id, 
-          email, 
-          firstName, 
-          lastName 
-        }),
-      });
-
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to create user in database');
