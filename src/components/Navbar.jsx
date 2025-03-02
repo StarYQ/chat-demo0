@@ -18,9 +18,6 @@ export default function Navbar({ user }) {
       <div className={styles.navLinks}>
         {user ? (
           <>
-            <Link href="/myProfile">My Profile</Link>
-            <Link href="/myPatients">My Patients</Link>
-            <Link href="/setPatients">Set Patients</Link>
             <button onClick={handleLogout} className={styles.logoutButton}>Logout</button>
           </>
         ) : (
