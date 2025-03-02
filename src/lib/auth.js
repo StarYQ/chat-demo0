@@ -1,5 +1,3 @@
-import { cookies } from 'next/headers';
-import prisma from './prisma';
 import { createClient } from '@/utils/supabase/server';
 
 export async function getUser() {
@@ -9,13 +7,5 @@ export async function getUser() {
     console.error('Error fetching user:', error);
     return null;
   }
-  if (user) {
-    const userData = await prisma.user.findUnique({
-      where: { id: user.id },
-    });
-    if (userData) {
-      return { ...user, ...userData };
-    }
-  }
-  return null;
+  return user;  // just return the Supabase user
 }

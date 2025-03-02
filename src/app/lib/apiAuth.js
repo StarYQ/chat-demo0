@@ -17,12 +17,7 @@ export async function getUserFromApiRoute() {
   }
 
   if (user) {
-    const userData = await prisma.user.findUnique({
-      where: { id: user.id },
-    });
-    if (userData) {
-      return { ...user, ...userData };
-    }
+    return { ...user};
   }
 
   return null;
