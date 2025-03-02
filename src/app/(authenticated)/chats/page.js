@@ -1,14 +1,11 @@
-import React, { use, useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
 import supabaseBrowserClient from '@/lib/supabase'
 
-// ChatOverview: a rough Next.js version of ChatOverviewScreen.svelte
-
+// This is the server component
 export default async function ChatsPage() {
-  // We’re in a Server Component by default. But we can still do SSR queries
-  // for initial data. For realtime, we’ll show a client side approach below.
-
+  // SSR: Create a Supabase server client
   const supabase = await createClient()
 
   // 1) Grab the user
@@ -18,11 +15,11 @@ export default async function ChatsPage() {
 
   if (!user) {
     // If for some reason we ended up here without a user,
-    // fallback to a client redirect or an empty state.
+    // fallback to a minimal "loading" or handle redirect
     return <div>Loading...</div>
   }
 
-  // 2) Fetch the list of chats that the user is a member of
+  // 2) Fetch the list of chat IDs that this user is part of
   const { data: chatIds } = await supabase
     .from('chats_users')
     .select('chat_id')
@@ -33,6 +30,7 @@ export default async function ChatsPage() {
     chatIdList = chatIds.map((entry) => entry.chat_id)
   }
 
+  // 3) Fetch the actual `chats` with those IDs
   let initialChats = []
   if (chatIdList.length > 0) {
     const { data: fetchedChats } = await supabase
@@ -42,47 +40,46 @@ export default async function ChatsPage() {
     initialChats = fetchedChats || []
   }
 
-  // 3) Return the client UI
+  // 4) Return the client UI with the SSR data
   return (
     <ChatsClient initialChats={initialChats} userId={user.id} />
   )
 }
 
-// A client component that can handle realtime subscription
+// This is a client component
 function ChatsClient({ initialChats, userId }) {
   const [chats, setChats] = useState(initialChats)
   const [newUserEmail, setNewUserEmail] = useState('')
-  
-  // On mount, we can subscribe to changes in "chats" or "chats_users"
+
+  // Subscribe to changes in "chats" or "chats_users"
   useEffect(() => {
     const channel = supabaseBrowserClient
       .channel('chats-realtime')
-      // we can watch both "chats" and "chats_users" if desired
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'chats' },
-        (payload) => {
-          console.log('chats changed: ', payload)
+        () => {
+          console.log('chats changed')
           refreshChats()
         }
       )
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'chats_users' },
-        (payload) => {
-          console.log('chats_users changed: ', payload)
+        () => {
+          console.log('chats_users changed')
           refreshChats()
         }
       )
       .subscribe()
 
-    // Cleanup subscription
+    // Cleanup subscription on unmount
     return () => {
       supabaseBrowserClient.removeChannel(channel)
     }
   }, [])
 
-  // Helper: refresh chat list on any DB changes
+  // Helper to re-fetch the user's chats
   async function refreshChats() {
     const { data: chatIds } = await supabaseBrowserClient
       .from('chats_users')
@@ -96,6 +93,7 @@ function ChatsClient({ initialChats, userId }) {
       setChats([])
       return
     }
+
     const { data: fetchedChats } = await supabaseBrowserClient
       .from('chats')
       .select('id, created_at')
@@ -104,21 +102,18 @@ function ChatsClient({ initialChats, userId }) {
     setChats(fetchedChats || [])
   }
 
-  // This replicates "createChatWithUser" logic
+  // Creating a chat with another user by email
   async function createChatWithUser() {
-    // 1) find user with that email from your custom "User" table
-    const { data: existingUser, error } = await supabaseBrowserClient
-      .from('User')
-      .select('id, email')
-      .eq('email', newUserEmail)
-      .single()
-
-    if (!existingUser) {
+    // 1) Call our server route
+    const response = await fetch(`/api/find-user-by-email?email=${encodeURIComponent(newUserEmail)}`)
+    if (!response.ok) {
       alert('No user found with that email!')
       return
     }
 
-    // 2) create a new row in "chats"
+    const { user: existingUser } = await response.json()
+
+    // 2) create a new chat
     const { data: newChat, error: chatError } = await supabaseBrowserClient
       .from('chats')
       .insert({})
@@ -130,7 +125,7 @@ function ChatsClient({ initialChats, userId }) {
       return
     }
 
-    // 3) add two rows in "chats_users": for me, and for the other user
+    // 3) add both users to `chats_users`
     const { data: joined, error: joinError } = await supabaseBrowserClient
       .from('chats_users')
       .insert([
@@ -143,7 +138,7 @@ function ChatsClient({ initialChats, userId }) {
       return
     }
 
-    // Trigger a refresh
+    // 4) Refresh the chat list
     refreshChats()
   }
 
@@ -153,7 +148,7 @@ function ChatsClient({ initialChats, userId }) {
       {chats.length === 0 && <p>No chats yet.</p>}
       <ul style={{ marginTop: '1rem' }}>
         {chats.map((chat) => (
-          <li key={chat.id} style={{ padding: '4px 0' }}>
+          <li key={chat.id}>
             <Link href={`/chats/${chat.id}`}>
               Chat #{chat.id}
             </Link>
