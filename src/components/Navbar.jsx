@@ -14,7 +14,7 @@ export default function Navbar({ user }) {
   
   return (
     <nav className={styles.navbar}>
-      <Link href="/" className={styles.navLogo}>QuattronKidsChatDemo</Link>
+      <Link href="/" className={styles.navLogo}>QKChatDemo</Link>
       <div className={styles.navLinks}>
         {user ? (
           <>

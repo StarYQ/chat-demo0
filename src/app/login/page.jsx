@@ -1,5 +1,5 @@
 export const metadata = {
-  title: 'Login - QuattronKidsChatDemo',
+  title: 'Login - QKChatDemo',
 };
 
 import LoginPageClient from './LoginPageClient';

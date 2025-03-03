@@ -3,7 +3,7 @@ import Home from '@/components/Home';
 import { getUser } from '@/lib/auth';
 
 export const metadata = {
-  title: 'QuattronKidsChatDemo - Home',
+  title: 'QKChatDemo - Home',
 };
 
 export default async function HomePage() {

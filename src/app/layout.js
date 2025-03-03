@@ -2,7 +2,7 @@ import { getUser } from '@/lib/auth';
 import { UserProvider } from '@/context/UserContext';
 
 export const metadata = {
-  title: 'QuattronKidsChatDemo',
+  title: 'QKChatDemo',
   description: 'Monitor your patients\' cardiovascular recovery progress.',
 };
 

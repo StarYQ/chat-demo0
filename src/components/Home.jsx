@@ -9,7 +9,7 @@ export default function Home({ user }) {
     <div>
       <Navbar user={user} />
       <main style={{ padding: '1rem' }}>
-        <h1>Welcome to QuattronKidsChatDemo!</h1>
+        <h1>Welcome to QKChatDemo!</h1>
         {user ? (
           <div className={styles.userInfo}>
             <p><strong>Email:</strong> {user.email}</p>
@@ -20,7 +20,7 @@ export default function Home({ user }) {
         )}
       </main>
       <footer style={{ marginTop: '2rem', textAlign: 'center' }}>
-        <p>&copy; {new Date().getFullYear()} QuattronKidsChatDemo</p>
+        <p>&copy; {new Date().getFullYear()} QKChatDemo</p>
       </footer>
     </div>
   );

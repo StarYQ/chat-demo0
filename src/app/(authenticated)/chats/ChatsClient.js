@@ -67,7 +67,7 @@ export default function ChatsClient({ initialChats, userId }) {
   
     const { user: existingUser } = await response.json(); // { id, email }
   
-    // 2) Create a new chat (empty insert should use defaults)
+    // 2) Create a new chat
     const { data: newChat, error: chatError, status } = await supabase
     .from('chats')
     .insert([{}])
