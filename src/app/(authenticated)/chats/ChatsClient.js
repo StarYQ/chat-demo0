@@ -2,7 +2,7 @@
 "use client"; // This makes it a client component
 
 import React, { useState, useEffect } from 'react';
-import supabaseBrowserClient from '@/lib/supabase';
+import supabase from '@/lib/supabase';
 import Link from 'next/link';
 
 export default function ChatsClient({ initialChats, userId }) {
@@ -10,7 +10,7 @@ export default function ChatsClient({ initialChats, userId }) {
   const [newUserEmail, setNewUserEmail] = useState('');
 
   useEffect(() => {
-    const channel = supabaseBrowserClient
+    const channel = supabase
       .channel('chats-realtime')
       .on(
         'postgres_changes',
@@ -25,12 +25,12 @@ export default function ChatsClient({ initialChats, userId }) {
       .subscribe();
 
     return () => {
-      supabaseBrowserClient.removeChannel(channel);
+      supabase.removeChannel(channel);
     };
   }, []);
 
   async function refreshChats() {
-    const { data: chatIds } = await supabaseBrowserClient
+    const { data: chatIds } = await supabase
       .from('chats_users')
       .select('chat_id')
       .eq('user_id', userId);
@@ -43,7 +43,7 @@ export default function ChatsClient({ initialChats, userId }) {
       return;
     }
 
-    const { data: fetchedChats } = await supabaseBrowserClient
+    const { data: fetchedChats } = await supabase
       .from('chats')
       .select('id, created_at')
       .in('id', chatIdList);
@@ -56,7 +56,7 @@ export default function ChatsClient({ initialChats, userId }) {
       alert('Please enter an email address');
       return;
     }
-  
+
     // 1) Fetch the user ID from our profiles table
     const response = await fetch(`/api/find-user-by-email?email=${encodeURIComponent(newUserEmail)}`);
     
@@ -67,20 +67,23 @@ export default function ChatsClient({ initialChats, userId }) {
   
     const { user: existingUser } = await response.json(); // { id, email }
   
-    // 2) Create a new chat
-    const { data: newChat, error: chatError } = await supabaseBrowserClient
-      .from('chats')
-      .insert({})
-      .select()
-      .single();
-  
+    // 2) Create a new chat (empty insert should use defaults)
+    const { data: newChat, error: chatError, status } = await supabase
+    .from('chats')
+    .insert([{}])
+    .select('*')
+    .single();
+
+    console.log("Insert response:", { newChat, chatError, status });
+
     if (!newChat) {
+      console.error("Error creating chat:", chatError);
       alert('Could not create chat.');
       return;
     }
   
     // 3) Add users to the chat
-    const { error: joinError } = await supabaseBrowserClient
+    const { error: joinError } = await supabase
       .from('chats_users')
       .insert([
         { chat_id: newChat.id, user_id: userId },
@@ -88,6 +91,7 @@ export default function ChatsClient({ initialChats, userId }) {
       ]);
   
     if (joinError) {
+      console.error("Error adding users to chat:", joinError);
       alert('Could not add users to chat.');
       return;
     }
