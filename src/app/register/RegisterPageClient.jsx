@@ -1,3 +1,4 @@
+// file: src/app/register/RegisterPageClient.jsx
 'use client';
 
 import React, { useState } from 'react';
@@ -17,21 +18,19 @@ export default function RegisterPageClient() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
+      // Attempt to sign up with Supabase
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: { name: `${firstName} ${lastName}` }, // Store concatenated name in user metadata
+          data: { name: `${firstName} ${lastName}` }, 
         },
       });
       if (error) throw error;
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create user in database');
-      }
-
+      // If successful, redirect user to login
       alert('Registration successful!');
       router.push('/login');
     } catch (error) {

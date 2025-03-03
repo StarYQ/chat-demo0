@@ -15,10 +15,10 @@ export async function GET(request) {
     // 2) Query the built-in auth.users table using the service client
     //    The name is "users" in the "auth" schema
     const { data, error } = await supabase
-      .from('users')
-      .select('id, email')
-      .eq('email', email)
-      .maybeSingle();
+    .from('users', { schema: 'auth' })
+    .select('id, email')
+    .eq('email', email)
+    .maybeSingle();
 
     if (error) {
       console.error('Error fetching user from auth.users:', error);

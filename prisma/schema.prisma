@@ -30,3 +30,11 @@ model messages {
   content    String?   @db.VarChar
   chats      chats     @relation(fields: [chat_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
+
+model profiles {
+  id         String    @id @db.Uuid
+  email      String
+  first_name String
+  last_name  String
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+}
