@@ -12,7 +12,7 @@ export async function GET(request) {
     }
 
     // Query the profiles table instead of auth.users
-    const userProfile = await prisma.profile.findUnique({
+    const userProfile = await prisma.profiles.findUnique({
       where: { email },
     });
 

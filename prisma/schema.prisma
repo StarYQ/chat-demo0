@@ -33,7 +33,7 @@ model messages {
 
 model profiles {
   id         String    @id @db.Uuid
-  email      String
+  email      String    @unique
   first_name String
   last_name  String
   created_at DateTime? @default(now()) @db.Timestamptz(6)
