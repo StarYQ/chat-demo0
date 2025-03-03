@@ -2,7 +2,7 @@ import { getUser } from '@/lib/auth';
 import { UserProvider } from '@/context/UserContext';
 
 export const metadata = {
-  title: 'HealthByte',
+  title: 'QuattronKidsChatDemo',
   description: 'Monitor your patients\' cardiovascular recovery progress.',
 };
 

@@ -3,7 +3,7 @@ import Home from '@/components/Home';
 import { getUser } from '@/lib/auth';
 
 export const metadata = {
-  title: 'HealthByte - Home',
+  title: 'QuattronKidsChatDemo - Home',
 };
 
 export default async function HomePage() {

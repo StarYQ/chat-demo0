@@ -52,40 +52,47 @@ export default function ChatsClient({ initialChats, userId }) {
   }
 
   async function createChatWithUser() {
-    const { data: existingUser, error } = await supabase
-    .from('profiles')
-    .select('id, email')
-    .eq('email', newUserEmail)
-    .maybeSingle();
-
-    if (!existingUser) {
-    alert('No user found with that email!');
-    return;
+    if (!newUserEmail) {
+      alert('Please enter an email address');
+      return;
     }
-
+  
+    // 1) Fetch the user ID from our profiles table
+    const response = await fetch(`/api/find-user-by-email?email=${encodeURIComponent(newUserEmail)}`);
+    
+    if (!response.ok) {
+      alert('No user found with that email!');
+      return;
+    }
+  
+    const { user: existingUser } = await response.json(); // { id, email }
+  
+    // 2) Create a new chat
     const { data: newChat, error: chatError } = await supabaseBrowserClient
       .from('chats')
       .insert({})
       .select()
       .single();
-
+  
     if (!newChat) {
       alert('Could not create chat.');
       return;
     }
-
+  
+    // 3) Add users to the chat
     const { error: joinError } = await supabaseBrowserClient
       .from('chats_users')
       .insert([
         { chat_id: newChat.id, user_id: userId },
         { chat_id: newChat.id, user_id: existingUser.id },
       ]);
-
+  
     if (joinError) {
       alert('Could not add users to chat.');
       return;
     }
-
+  
+    // Refresh chat list
     refreshChats();
   }
 

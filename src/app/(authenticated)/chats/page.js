@@ -1,5 +1,4 @@
 // file: src/app/(authenticated)/chats/page.js
-
 import { createClient } from '@/utils/supabase/server';
 import ChatsClient from './ChatsClient';
 

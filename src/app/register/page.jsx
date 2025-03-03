@@ -1,5 +1,5 @@
 export const metadata = {
-    title: 'Register - HealthByte',
+    title: 'Register - QuattronKidsChatDemo',
   };
   
   import RegisterPageClient from './RegisterPageClient';

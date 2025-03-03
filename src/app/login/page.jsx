@@ -1,5 +1,5 @@
 export const metadata = {
-  title: 'Login - HealthByte',
+  title: 'Login - QuattronKidsChatDemo',
 };
 
 import LoginPageClient from './LoginPageClient';
