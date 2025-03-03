@@ -1,7 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
 import prisma from './prisma';
 
-
 // To use in any server-based API route to retrieve the current user.
 export async function getUserFromApiRoute() {
   const supabase = await createClient();

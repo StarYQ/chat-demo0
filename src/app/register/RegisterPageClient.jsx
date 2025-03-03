@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import supabase from '@/lib/supabase';
 import Navbar from '@/components/Navbar';
-import styles from '../login/login.module.css'; // Reuse login styles
+import styles from '../login/login.module.css';
 
 export default function RegisterPageClient() {
   const router = useRouter();
@@ -18,27 +18,44 @@ export default function RegisterPageClient() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       // 1. Sign up the user in Supabase
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: { first_name: firstName, last_name: lastName }, // Store name in metadata
+          data: { first_name: firstName, last_name: lastName },
         },
       });
 
       if (error) throw error;
-      
+
+      // It’s possible that signUp might not immediately return a user object
+      // (e.g., if email confirmation is enabled). For development, ensure that
+      // either email confirmations are disabled or handle that case appropriately.
+      const userId = data?.user?.id;
+      if (!userId) {
+        alert('Registration successful! Please check your email to complete registration.');
+        router.push('/login');
+        return;
+      }
+
       // 2. Call `/api/create-user` to insert into the profiles table
-      const createUserResponse = await fetch('/api/create-user', { method: 'POST' });
+      const createUserResponse = await fetch('/api/create-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId,
+          email,
+          firstName,
+          lastName,
+        }),
+      });
 
       if (!createUserResponse.ok) {
         console.error('Failed to create user in profiles table');
       }
-      
-      // If successful, redirect user to login
+
       alert('Registration successful!');
       router.push('/login');
     } catch (error) {

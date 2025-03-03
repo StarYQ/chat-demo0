@@ -1,31 +1,39 @@
+// file: src/app/api/create-user/route.js
+
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { getUserFromApiRoute } from '@/lib/apiAuth';
 
-export async function POST() {
+export async function POST(request) {
   try {
-    // Get the authenticated user from Supabase
-    const user = await getUserFromApiRoute();
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Expect the user details to be sent in the request body
+    const { userId, email, firstName, lastName } = await request.json();
+
+    if (!userId || !email) {
+      return NextResponse.json(
+        { error: 'Missing required fields: userId and email' },
+        { status: 400 }
+      );
     }
 
-    // Check if the user already exists in profiles
-    const existingProfile = await prisma.profile.findUnique({
-      where: { id: user.id },
+    // Check if the profile already exists
+    const existingProfile = await prisma.profiles.findUnique({
+      where: { id: userId },
     });
 
     if (existingProfile) {
-      return NextResponse.json({ message: 'User already exists' }, { status: 200 });
+      return NextResponse.json(
+        { message: 'User already exists' },
+        { status: 200 }
+      );
     }
 
     // Create a new profile entry
-    const newProfile = await prisma.profile.create({
+    const newProfile = await prisma.profiles.create({
       data: {
-        id: user.id,
-        email: user.email,
-        first_name: user.user_metadata?.first_name || null,
-        last_name: user.user_metadata?.last_name || null,
+        id: userId,
+        email,
+        first_name: firstName || null,
+        last_name: lastName || null,
       },
     });
 
