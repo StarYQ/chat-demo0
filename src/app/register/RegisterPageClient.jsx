@@ -20,16 +20,24 @@ export default function RegisterPageClient() {
     setLoading(true);
 
     try {
-      // Attempt to sign up with Supabase
+      // 1. Sign up the user in Supabase
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: { name: `${firstName} ${lastName}` }, 
+          data: { first_name: firstName, last_name: lastName }, // Store name in metadata
         },
       });
-      if (error) throw error;
 
+      if (error) throw error;
+      
+      // 2. Call `/api/create-user` to insert into the profiles table
+      const createUserResponse = await fetch('/api/create-user', { method: 'POST' });
+
+      if (!createUserResponse.ok) {
+        console.error('Failed to create user in profiles table');
+      }
+      
       // If successful, redirect user to login
       alert('Registration successful!');
       router.push('/login');
