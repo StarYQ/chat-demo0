@@ -1,0 +1,89 @@
+.container {
+    display: flex;
+    height: calc(100vh - 60px); /* or whatever suits your layout */
+    overflow: hidden;
+    background-color: #f9f9f9;
+    border-top: 1px solid #ccc;
+  }
+  
+  /* Sidebar */
+  .sidebar {
+    width: 300px;
+    background-color: #ffffff;
+    border-right: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .sidebarTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .chatList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex: 1;
+    overflow-y: auto;
+  }
+  
+  .chatItem {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f2f2f2;
+  }
+  
+  .chatItem:hover {
+    background-color: #f2f2f2;
+  }
+  
+  .chatItemActive {
+    background-color: #e0e0ff;
+    border-bottom: 1px solid #d2d2f2;
+    cursor: pointer;
+    padding: 0.75rem 1rem;
+  }
+  
+  /* Create Chat Section */
+  .createChat {
+    padding: 1rem;
+    border-top: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .input {
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .button {
+    padding: 0.5rem;
+    background-color: #6c63ff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .button:hover {
+    background-color: #5b54e6;
+  }
+  
+  /* Main Panel */
+  .mainPanel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .noChatSelected {
+    margin: auto;
+    text-align: center;
+  }
+  
