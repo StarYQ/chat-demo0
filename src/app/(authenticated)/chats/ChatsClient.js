@@ -1,3 +1,4 @@
+// file: src/app/(authenticated)/chats/ChatsClient.jsx
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -6,9 +7,10 @@ import styles from './chats.module.css';
 import msgStyles from './messages.module.css';
 
 /**
- * This merges "chat overview" + "chat detail" into one UI:
- * - A left sidebar listing all chats
- * - A right panel for messages of the currently selected chat
+ * Two-column chat UI:
+ *  - Left sidebar for chat list
+ *  - Right panel for messages of the selected chat
+ *  - Displays "first_name last_name" for each message author
  */
 export default function ChatsClient({ userId, initialChats }) {
   const [chats, setChats] = useState(initialChats);
@@ -83,11 +85,27 @@ export default function ChatsClient({ userId, initialChats }) {
     setChats(fetchedChats || []);
   }
 
-  /** Fetch messages for the currently selected chat */
+  /**
+   * Fetch messages for the currently selected chat,
+   * including author profile info (first_name, last_name).
+   */
   async function fetchMessages(chatId) {
+    // NOTE: This query uses "author:profiles(...)" to fetch the related profile
+    // so we can display first_name and last_name.
     const { data, error } = await supabase
       .from('messages')
-      .select('*')
+      .select(`
+        id,
+        created_at,
+        chat_id,
+        author_id,
+        content,
+        author:profiles (
+          id,
+          first_name,
+          last_name
+        )
+      `)
       .eq('chat_id', chatId)
       .order('created_at', { ascending: true });
 
@@ -216,21 +234,24 @@ export default function ChatsClient({ userId, initialChats }) {
           <div className={msgStyles.chatContainer}>
             {/* Messages */}
             <div className={msgStyles.messageList}>
-              {messages.map((m) => (
-                <div
-                  key={m.id}
-                  className={
-                    m.author_id === userId
-                      ? msgStyles.messageRowSelf
-                      : msgStyles.messageRow
-                  }
-                >
-                  <p className={msgStyles.messageAuthor}>
-                    {m.author_id.slice(0, 8)}...
-                  </p>
-                  <p className={msgStyles.messageContent}>{m.content}</p>
-                </div>
-              ))}
+              {messages.map((m) => {
+                const isSelf = m.author_id === userId;
+                const authorName = m.author
+                  ? `${m.author.first_name} ${m.author.last_name}`
+                  : m.author_id.slice(0, 8);
+
+                return (
+                  <div
+                    key={m.id}
+                    className={isSelf ? msgStyles.messageRowSelf : msgStyles.messageRow}
+                  >
+                    <p className={msgStyles.messageAuthor}>
+                      {authorName}
+                    </p>
+                    <p className={msgStyles.messageContent}>{m.content}</p>
+                  </div>
+                );
+              })}
             </div>
 
             {/* Message input */}
