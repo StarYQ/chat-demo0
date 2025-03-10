@@ -6,12 +6,6 @@ import supabase from '@/lib/supabase';
 import styles from './chats.module.css';
 import msgStyles from './messages.module.css';
 
-/**
- * Two-column chat UI:
- *  - Left sidebar for chat list
- *  - Right panel for messages of the selected chat
- *  - Displays "first_name last_name" for each message author
- */
 export default function ChatsClient({ userId, initialChats }) {
   const [chats, setChats] = useState(initialChats);
   const [selectedChatId, setSelectedChatId] = useState(null);
@@ -19,7 +13,7 @@ export default function ChatsClient({ userId, initialChats }) {
   const [newMessage, setNewMessage] = useState('');
   const [newUserEmail, setNewUserEmail] = useState('');
 
-  // 1) Subscribe to changes in "chats" or "chats_users" to refresh the chat list
+  // Subscribe to changes in "chats" or "chats_users" to refresh the chat list
   useEffect(() => {
     const channel = supabase
       .channel('chats-overview')
@@ -37,7 +31,7 @@ export default function ChatsClient({ userId, initialChats }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 2) If user selects a chat, subscribe to changes in "messages" for that chat
+  // If user selects a chat, subscribe to changes in "messages" for that chat
   useEffect(() => {
     if (!selectedChatId) return;
 
@@ -90,8 +84,6 @@ export default function ChatsClient({ userId, initialChats }) {
    * including author profile info (first_name, last_name).
    */
   async function fetchMessages(chatId) {
-    // NOTE: This query uses "author:profiles(...)" to fetch the related profile
-    // so we can display first_name and last_name.
     const { data, error } = await supabase
       .from('messages')
       .select(`
@@ -191,7 +183,7 @@ export default function ChatsClient({ userId, initialChats }) {
     }
   }
 
-  // 3) Render the UI
+  // Render the UI
   return (
     <div className={styles.container}>
       {/* Sidebar */}
@@ -234,20 +226,36 @@ export default function ChatsClient({ userId, initialChats }) {
           <div className={msgStyles.chatContainer}>
             {/* Messages */}
             <div className={msgStyles.messageList}>
-              {messages.map((m) => {
+              {messages.map((m, i) => {
                 const isSelf = m.author_id === userId;
+                // If this is the first message or different author than previous, show name
+                const prevMessage = i > 0 ? messages[i - 1] : null;
+                const isFirstInBlock = !prevMessage || prevMessage.author_id !== m.author_id;
+
                 const authorName = m.author
                   ? `${m.author.first_name} ${m.author.last_name}`
                   : m.author_id.slice(0, 8);
 
+                // Choose the correct row style (self or other)
+                // plus whether it's "consecutive" or "first in block"
+                let rowClass = '';
+                if (isSelf) {
+                  rowClass = isFirstInBlock
+                    ? msgStyles.messageRowSelf
+                    : msgStyles.messageRowSelfConsecutive;
+                } else {
+                  rowClass = isFirstInBlock
+                    ? msgStyles.messageRow
+                    : msgStyles.messageRowConsecutive;
+                }
+
                 return (
-                  <div
-                    key={m.id}
-                    className={isSelf ? msgStyles.messageRowSelf : msgStyles.messageRow}
-                  >
-                    <p className={msgStyles.messageAuthor}>
-                      {authorName}
-                    </p>
+                  <div key={m.id} className={rowClass}>
+                    {isFirstInBlock && (
+                      <p className={msgStyles.messageAuthor}>
+                        {authorName}
+                      </p>
+                    )}
                     <p className={msgStyles.messageContent}>{m.content}</p>
                   </div>
                 );

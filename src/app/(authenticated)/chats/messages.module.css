@@ -1,3 +1,5 @@
+/* file: src/app/(authenticated)/chats/messages.module.css */
+
 .chatContainer {
     display: flex;
     flex-direction: column;
@@ -11,20 +13,36 @@
     background-color: #fafafa;
   }
   
+  /* First message from other user in a block */
   .messageRow {
-    margin-bottom: 0.75rem;
+    margin-bottom: -1.5rem;
     text-align: left;
   }
   
+  /* Consecutive message from other user */
+  .messageRowConsecutive {
+    margin-bottom: -1.5rem; /* Reduced spacing for consecutive messages */
+    text-align: left;
+  }
+  
+  /* First message from self in a block */
   .messageRowSelf {
-    margin-bottom: 0.75rem;
+    margin-bottom: -1.5rem;
     text-align: right;
   }
   
+  /* Consecutive message from self */
+  .messageRowSelfConsecutive {
+    margin-bottom: -1.5rem; /* Reduced spacing for consecutive messages */
+    text-align: right;
+  }
+  
+  /* Author name shown above the message bubble */
   .messageAuthor {
     font-size: 0.75rem;
     color: #666;
     margin: 0;
+    margin-bottom: 0rem;
   }
   
   .messageContent {
@@ -37,8 +55,9 @@
     word-wrap: break-word;
   }
   
-  /* For self messages, you could use a different background color: */
-  .messageRowSelf .messageContent {
+  /* For self messages, use a different background color */
+  .messageRowSelf .messageContent,
+  .messageRowSelfConsecutive .messageContent {
     background-color: #d0f0ff;
   }
   
