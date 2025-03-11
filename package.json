@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@mailchimp/mailchimp_transactional": "^1.0.59",
     "@prisma/client": "^6.2.1",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.48.0",
