@@ -43,3 +43,4 @@ next-env.d.ts
 #testing
 emailTest.js
 emailTest.mjs
+emailTest.test.js
